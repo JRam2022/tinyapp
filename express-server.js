@@ -34,7 +34,15 @@ app.get('/urls', (req, res) => {
   
   res.render('urls_index', templateVars);
 
-})
+});
+
+app.post('/urls', (req, res) => {
+  
+  console.log(req.body);
+
+  res.send('Ok');
+
+});
 
 
 app.get('/hello', (req, res) =>{
@@ -49,8 +57,11 @@ app.get('/urls/new', (req, res) => {
 
 
 app.get("/urls/:shortURL", (req, res) => {
+  
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  
   res.render("urls_show", templateVars);
+
 });
 
 
@@ -60,3 +71,21 @@ app.listen(PORT, () =>{
 
 });
 
+
+const generateRandomString = function() {
+  // array of 52 letters for random generation
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  //console.log(alphabet.length)
+  
+  let randomStr = '';
+  //generates 6 random indexs of alphabet between 0-52
+  for (let i = 0; i < 6; i++) {
+    let generateNum = Math.floor(Math.random() * 52);
+
+    randomStr += alphabet[generateNum];
+
+  };
+
+  return randomStr;
+
+};
