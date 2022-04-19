@@ -60,18 +60,18 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post('/urls', (req, res) => {
   let newURL = generateRandomString();
   //console.log(req.body);
-  console.log(newURL, req.body.longURL)
+  //console.log(newURL, req.body.longURL)
   
   urlDatabase[newURL] = req.body.longURL
   
-  console.log(urlDatabase)
+  //console.log(urlDatabase)
   res.redirect(`/urls/${newURL}`)
 
 });
 
 app.get('/u/:shortURL', (req, res) =>{
   let longURLdata = urlDatabase[req.params.shortURL];
-  console.log("this is the short url:", longURLdata);
+  //console.log("this is the short url:", longURLdata);
   if (longURLdata.startsWith('http')) {
     res.redirect(longURLdata);
   } else {
