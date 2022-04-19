@@ -21,6 +21,13 @@ app.get('/', (req, res) => {
 });
 
 
+app.get('/hello', (req, res) =>{
+
+  res.send("<html><body>Hello <b>World</b></body</html>\n");
+
+});
+
+
 app.get('/urls.json', (req, res) =>{
 
   res.json(urlDatabase);
@@ -36,20 +43,6 @@ app.get('/urls', (req, res) => {
 
 });
 
-app.post('/urls', (req, res) => {
-  
-  console.log(req.body);
-
-  res.send('Ok');
-
-});
-
-
-app.get('/hello', (req, res) =>{
-
-  res.send("<html><body>Hello <b>World</b></body</html>\n");
-
-});
 
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
@@ -58,10 +51,33 @@ app.get('/urls/new', (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const templateVars = { shortURL:req.params.shortURL, longURL:urlDatabase[req.params.shortURL]};
   
   res.render("urls_show", templateVars);
 
+});
+
+app.post('/urls', (req, res) => {
+  let newURL = generateRandomString();
+  //console.log(req.body);
+  console.log(newURL, req.body.longURL)
+  
+  urlDatabase[newURL] = req.body.longURL
+  
+  console.log(urlDatabase)
+  res.redirect(`/urls/${newURL}`)
+
+});
+
+app.get('/u/:shortURL', (req, res) =>{
+  let longURLdata = urlDatabase[req.params.shortURL];
+  console.log("this is the short url:", longURLdata);
+  if (longURLdata.startsWith('http')) {
+    res.redirect(longURLdata);
+  } else {
+    res.redirect("https://" + longURLdata);
+  }
+  
 });
 
 
@@ -74,13 +90,13 @@ app.listen(PORT, () =>{
 
 const generateRandomString = function() {
   // array of 52 letters for random generation
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   //console.log(alphabet.length)
   
   let randomStr = '';
-  //generates 6 random indexs of alphabet between 0-52
+  //generates 6 random indexs of alphabet between 0-62
   for (let i = 0; i < 6; i++) {
-    let generateNum = Math.floor(Math.random() * 52);
+    let generateNum = Math.floor(Math.random() * 62);
 
     randomStr += alphabet[generateNum];
 
