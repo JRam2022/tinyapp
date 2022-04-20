@@ -87,6 +87,12 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+app.post('/urls/:id', (req, res) => {
+  //console.log('id ---:', req.params.id)
+  urlDatabase[req.params.id] = req.body.longURL
+
+  res.redirect(`/urls/${req.params.id}`)
+});
 
 app.listen(PORT, () =>{
 
