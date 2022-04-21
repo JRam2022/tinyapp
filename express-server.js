@@ -44,8 +44,6 @@ app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlDatabase,
     
-    
-
     user: users[user_id]
     
   };
@@ -58,17 +56,28 @@ app.post('/urls', (req, res) => {
   let newURL = generateRandomString();
   
   urlDatabase[newURL] = req.body.longURL;
+
+  if (!req.cookies['user_id']) {
+    res.status(401)
+    res.send('Please Login')
+  }
  
   res.redirect(`/urls/${newURL}`);
 });
 
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = { 
-    
+  const templateVars = {
     
     user: req.cookies['user_id']
   };
+
+  if (!req.cookies['user_id']) {
+    res.redirect('/login')
+  } 
+
+  
+
   res.render('urls_new', templateVars);
 });
 
