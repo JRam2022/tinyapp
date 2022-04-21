@@ -77,7 +77,6 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL:req.params.shortURL,
     longURL:urlDatabase[req.params.shortURL],
-    username: req.cookies["username"],
     user: req.cookies['user_id']
   };
   
@@ -113,9 +112,32 @@ app.post('/urls/:id', (req, res) => {
 
 
 app.post('/login', (req, res) => {
+  //if no email found return 403
+  //if email true compare password in form with stored password
+    //if passwords not same return 403
+
+  //if both checks pass
+    //set user_id cookie with users random id
+
+  const usersArray = Object.values(users)
   
-  res.cookie("username", req.body.username);
-  res.redirect(`/urls`);
+  for (const user in usersArray) {
+    if (usersArray[user]['email'] === req.body.email) {
+      //console.log('EMAIL FOUND')
+      if (usersArray[user]['password'] === req.body.password){
+        //console.log('PASSWORD FOUND')
+        //LOGIN
+        //UPDATE COOKIE TO USER FOUNDS ID
+        res.cookie("user_id", usersArray[user]['id'])
+        //redirect to url
+        res.redirect(`/urls`);
+      }
+    } 
+  }
+  //REJECT IF NOT FOUND
+  res.statusCode = 403;
+  console.log('Invalid credentials')
+  res.redirect(`/login`);
 });
 
 
@@ -158,14 +180,13 @@ app.post('/register', (req, res) => {
   } 
 
   const usersArray = Object.values(users)
-  console.log(usersArray);
+  
   for (const user in usersArray) {
-    console.log(usersArray[user])
-    console.log(usersArray[user]['email'])
+    
     if (usersArray[user]['email'] === req.body.email) {
-     res.send('email is registered') // error 
-     res.statusCode = 400 // message 
-      //return;
+     res.send('email is registered') // message
+     res.statusCode = 400 // error
+    
     } 
   }
 
