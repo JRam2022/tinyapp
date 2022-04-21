@@ -42,14 +42,32 @@ app.get('/urls.json', (req, res) =>{
   res.json(urlDatabase);
 });
 
+////////
+const urlsForUser = function(id) {
+ let matchingUrlID = {};
+  for (url in urlDatabase) {
+    //console.log('URL IN DATABASE', url)
+    //console.log('URL USER ID', urlDatabase[url]['userID'])
+    if (urlDatabase[url]['userID'] === id) {
+      //console.log('matched')
+      
+      matchingUrlID[url] = {
+        longURL: urlDatabase[url]['longURL'],
+        userID: urlDatabase[url]['userID']
+      }
+    }
+  }
+
+  return matchingUrlID;
+}
 
 app.get('/urls', (req, res) => {
   const user_id = req.cookies['user_id']
+  const urls = urlsForUser(user_id)
+  //console.log(urls)
   const templateVars = {
-    urls: urlDatabase,
-    
+    urls: urls,
     user: users[user_id]
-    
   };
   
   
@@ -95,6 +113,12 @@ app.get('/urls/new', (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = urlDatabase[req.params.shortURL]['longURL']
+  const user_id = req.cookies['user_id']
+
+  if (urlDatabase[shortURL]['userID'] !== user_id ) {
+    res.status(400).send('error id does not match')
+  }
+
   const templateVars = {
     shortURL: shortURL,
     longURL: longURL,
@@ -112,8 +136,8 @@ app.get('/u/:shortURL', (req, res) =>{
     return;
   }
   const longURLdata = urlDatabase[req.params.shortURL]['longURL']
-  console.log(urlDatabase)
-  console.log('-------->', longURLdata)
+  //.log(urlDatabase)
+  //console.log('-------->', longURLdata)
   if (longURLdata.startsWith('https://') || longURLdata.startsWith('http://')){
     res.redirect(longURLdata);
   } else {
@@ -125,12 +149,26 @@ app.get('/u/:shortURL', (req, res) =>{
 
 
 app.post('/urls/:shortURL/delete', (req, res) => {
+  const shortURL = req.params.shortURL
+  const user_id = req.cookies['user_id']
+
+  if (!user_id) {
+    res.status(400).send('Please login');
+  }
+
+  if (urlDatabase[shortURL]['userID'] !== user_id ) {
+    res.status(400).send('error id does not match')
+  }
+  
   delete urlDatabase[req.params.shortURL];
+
+  
   res.redirect('/urls');
 });
 
 
 app.post('/urls/:id', (req, res) => {
+  const user_id = req.cookies['user_id']
   
   urlDatabase[req.params.id] = {
     longURL: req.body.longURL,
