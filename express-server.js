@@ -3,8 +3,10 @@ const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs')
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+
 
 app.set('view engine', 'ejs');
 
@@ -180,14 +182,19 @@ app.post('/urls/:id', (req, res) => {
 
 
 app.post('/login', (req, res) => {
-  
   const usersArray = Object.values(users)
+  const password = req.body.password
+  //const hashedPassword = bcrypt.hashSync(password, 10);
+
   
   for (const user in usersArray) {
     if (usersArray[user]['email'] === req.body.email) {
-      //console.log('EMAIL FOUND')
-      if (usersArray[user]['password'] === req.body.password){
-        //console.log('PASSWORD FOUND')
+      console.log('EMAIL FOUND')
+      console.log(usersArray[user]['password'])
+      
+      //console.log(hashedPassword)
+      if (bcrypt.compareSync(password, usersArray[user]['password'])){
+        console.log('PASSWORD FOUND')
         //LOGIN
         //UPDATE COOKIE TO USER FOUNDS ID
         res.cookie("user_id", usersArray[user]['id'])
@@ -233,6 +240,8 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   const newID = generateRandomString();
+  const password = req.body.password
+  const hashedPassword = bcrypt.hashSync(password, 10)
 
   if (!req.body.email || !req.body.password) {
     res.statusCode = 400;
@@ -240,18 +249,17 @@ app.post('/register', (req, res) => {
   } 
 
   const usersArray = Object.values(users)
-  
   for (const user in usersArray) {
     if (usersArray[user]['email'] === req.body.email) {
      res.send('email is registered') // message
      res.statusCode = 400 // error
     } 
   }
-
+  
   users[newID] = {
     id: newID, 
     email: req.body.email, 
-    password: req.body.password
+    password: hashedPassword
   }
   //console.log(users[newID])
 
