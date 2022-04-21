@@ -118,12 +118,18 @@ app.post('/login', (req, res) => {
   res.redirect(`/urls`);
 });
 
-//app.get('/login', (req, res) => {
-//  console.log(res.cookie("username", req.body.username));
-//  const templateVars = { user: res.cookie("username", req.body.username)}
-//
-//  res.render('/registration', templateVars);
-//})
+
+
+app.get('/login', (req, res) => {
+  const user_id = req.cookies['user_id']
+  const templateVars = {
+    urls: urlDatabase,
+    user: users[user_id]
+  };
+  
+
+  res.render('user_login', templateVars);
+})
 
 
 app.post('/logout', (req, res) => {
@@ -142,6 +148,8 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+  //emailChecker(req.body.email, res.statusCode = 400, res.send('email is registered'));
+
   const newID = generateRandomString();
 
   if (!req.body.email || !req.body.password) {
@@ -149,7 +157,17 @@ app.post('/register', (req, res) => {
     res.send('Fields cannot be empty')
   } 
 
-  emailChecker(req.body.email, res.statusCode = 400, res.send('email is registered'));
+  const usersArray = Object.values(users)
+  console.log(usersArray);
+  for (const user in usersArray) {
+    console.log(usersArray[user])
+    console.log(usersArray[user]['email'])
+    if (usersArray[user]['email'] === req.body.email) {
+     res.send('email is registered') // error 
+     res.statusCode = 400 // message 
+      //return;
+    } 
+  }
 
   users[newID] = {
     id: newID, 
@@ -184,16 +202,17 @@ const generateRandomString = function() {
   return randomStr;
 };
 
-const emailChecker = function(email, error, message) {
-  const usersArray = Object.values(users)
-  console.log(usersArray);
-  for (const user in usersArray) {
-    console.log(usersArray[user])
-    console.log(usersArray[user]['email'])
-    if (usersArray[user]['email'] === email) {
-      error
-      message
-    } 
-  }
-}
+//const emailChecker = function(email, error, message) {
+//  const usersArray = Object.values(users)
+//  console.log(usersArray);
+//  for (const user in usersArray) {
+//    console.log(usersArray[user])
+//    console.log(usersArray[user]['email'])
+//    if (usersArray[user]['email'] === email) {
+//      error
+//      message
+//      return;
+//    } 
+//  }
+//}
 
