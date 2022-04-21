@@ -59,7 +59,11 @@ app.get('/urls', (req, res) => {
 
 app.post('/urls', (req, res) => {
   let newURL = generateRandomString();
-  
+  const longURL = req.body.longURL
+  if (!longURL.startsWith('http://') && !longURL.startsWith('https://')){
+  res.status(400).send('URL must start with http(s)')
+  return;
+  }
   urlDatabase[newURL] = {
     longURL: req.body.longURL, 
     userID: req.cookies['user_id']
@@ -102,9 +106,21 @@ app.get("/urls/:shortURL", (req, res) => {
 
 
 app.get('/u/:shortURL', (req, res) =>{
-  //let longURLdata = urlDatabase[req.params.shortURL.longURL];
-  let longURLdata = urlDatabase[req.params.shortURL]['longURL']
-  res.redirect("https://" + longURLdata);
+  const shortURL = req.params.shortURL
+  if (!urlDatabase[shortURL]) {
+    res.status(400).send('not in in urldatabase')
+    return;
+  }
+  const longURLdata = urlDatabase[req.params.shortURL]['longURL']
+  console.log(urlDatabase)
+  console.log('-------->', longURLdata)
+  if (longURLdata.startsWith('https://') || longURLdata.startsWith('http://')){
+    res.redirect(longURLdata);
+  } else {
+    res.status(400).send('Please enter a url with http')
+    //res.send('Please enter a url with http')
+  }
+  
 });
 
 
@@ -126,13 +142,7 @@ app.post('/urls/:id', (req, res) => {
 
 
 app.post('/login', (req, res) => {
-  //if no email found return 403
-  //if email true compare password in form with stored password
-    //if passwords not same return 403
-
-  //if both checks pass
-    //set user_id cookie with users random id
-
+  
   const usersArray = Object.values(users)
   
   for (const user in usersArray) {
