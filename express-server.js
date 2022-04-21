@@ -43,30 +43,29 @@ app.get('/urls', (req, res) => {
   const user_id = req.cookies['user_id']
   const templateVars = {
     urls: urlDatabase,
-    //username: req.cookies["username"],
+    
     
 
     user: users[user_id]
     
   };
   
-  console.log(templateVars);
+  
   res.render('urls_index', templateVars);
 });
 
 app.post('/urls', (req, res) => {
   let newURL = generateRandomString();
-  //console.log(req.body);
-  //console.log(newURL, req.body.longURL)
+  
   urlDatabase[newURL] = req.body.longURL;
-  //console.log(urlDatabase)
+ 
   res.redirect(`/urls/${newURL}`);
 });
 
 
 app.get('/urls/new', (req, res) => {
   const templateVars = { 
-    //username: req.cookies["username"],
+    
     
     user: req.cookies['user_id']
   };
@@ -91,7 +90,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get('/u/:shortURL', (req, res) =>{
   let longURLdata = urlDatabase[req.params.shortURL];
-  //console.log("this is the short url:", longURLdata);
+  
   if (longURLdata.startsWith('http')) {
     res.redirect(longURLdata);
   } else {
@@ -107,14 +106,14 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 
 app.post('/urls/:id', (req, res) => {
-  //console.log('id ---:', req.params.id)
+  
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect(`/urls/${req.params.id}`);
 });
 
 
 app.post('/login', (req, res) => {
-  //console.log("req body", req.body.username)
+  
   res.cookie("username", req.body.username);
   res.redirect(`/urls`);
 });
@@ -128,35 +127,41 @@ app.post('/login', (req, res) => {
 
 
 app.post('/logout', (req, res) => {
-  //console.log("req body", req.body.username)
-  res.clearCookie("username");
-  //console.log("getting the cookie:", req.cookies)
+  
+  res.clearCookie("user_id");
+  
   res.redirect(`/urls`);
 });
 
 
 app.get('/register', (req, res) => {
   const templateVars = { user: res.cookie['user_id']}
-  //console.log
+  
   res.render("registration", templateVars)
-  //res.redirect('registration')
+  
 });
 
 app.post('/register', (req, res) => {
   const newID = generateRandomString();
-  //console.log(generateRandomString());
-  //console.log(req.body.email, req.body.password);
-  //console.log(users);
+
+  if (!req.body.email || !req.body.password) {
+    res.statusCode = 400;
+    res.send('Fields cannot be empty')
+  } 
+
+  emailChecker(req.body.email, res.statusCode = 400, res.send('email is registered'));
 
   users[newID] = {
     id: newID, 
     email: req.body.email, 
     password: req.body.password
   }
+
+  //console.log(Object.values(users))
   
   res.cookie("user_id", newID)
-  console.log('-----------', res.cookie['user_id']);
   res.redirect('/urls')
+  
 });
 
 
@@ -178,3 +183,17 @@ const generateRandomString = function() {
   }
   return randomStr;
 };
+
+const emailChecker = function(email, error, message) {
+  const usersArray = Object.values(users)
+  console.log(usersArray);
+  for (const user in usersArray) {
+    console.log(usersArray[user])
+    console.log(usersArray[user]['email'])
+    if (usersArray[user]['email'] === email) {
+      error
+      message
+    } 
+  }
+}
+
