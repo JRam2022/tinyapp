@@ -22,6 +22,9 @@
         </tr>
       </thead>
       <tbody>
+        <% if (!user) { %>
+          <td><h4>Please Login</h4></td>
+      <% } else { %>
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
@@ -30,6 +33,7 @@
             <td><form method="POST" action="/urls/<%= url %>/delete"><button type="submit">Delete</button></form></td>
           </tr>
         <% } %>
+      <% } %>
       </tbody>
     </table>
   </main>
