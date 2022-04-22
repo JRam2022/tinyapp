@@ -90,15 +90,15 @@ app.post('/urls', (req, res) => {
 
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = {
-    
-    user: req.session.user_id
-  };
+  //console.log(req.body)
+  //console.log(users)
+  //console.log(users[req.session.user_id])
 
+  const templateVars = { user: users[req.session.user_id] };
   if (!req.session.user_id) {
+    res.status(403)
     res.redirect('/login')
   } 
-
   res.render('urls_new', templateVars);
 });
 
