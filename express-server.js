@@ -36,12 +36,7 @@ const users = {
 
 
 app.get('/', (req, res) => {
-  res.send('Hello!');
-});
-
-
-app.get('/hello', (req, res) =>{
-  res.send("<html><body>Hello <b>World</b></body</html>\n");
+  res.redirect('/register')
 });
 
 
@@ -94,6 +89,10 @@ app.get('/urls/new', (req, res) => {
 
 
 app.get("/urls/:shortURL", (req, res) => {
+  //if shortURL does not exist redirects
+  if (urlDatabase[req.params.shortURL] === undefined) {
+    res.redirect('/urls');
+  }
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[req.params.shortURL]['longURL'];
   const user_id = req.session.user_id;
@@ -142,13 +141,27 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+app.post('/urls/:shortURL/edit', (req,res) => {
+  const shortURL = req.params.shortURL;
+  res.redirect(`/urls/${shortURL}`);
+});
+
 
 app.post('/urls/:id', (req, res) => {
-  urlDatabase[req.params.id] = {
-    longURL: req.body.longURL,
-    userID: req.session.user_id
-  };
-  res.redirect(`/urls/${req.params.id}`);
+  if (!urlDatabase[req.params.id]['longURL']) {
+    urlDatabase[req.params.id] = {
+      longURL: req.body.longURL,
+      userID: req.session.user_id
+    };
+    res.redirect(`/urls/${req.params.id}`);
+  }
+  if (urlDatabase[req.params.id][req.body.longURL] !== urlDatabase[req.params.id]['longURL']) {
+    urlDatabase[req.params.id] = {
+      longURL: req.body.longURL,
+      userID: req.session.user_id
+    };
+    res.redirect(`/urls`);
+  }
 });
 
 
@@ -168,7 +181,7 @@ app.post('/login', (req, res) => {
   }
   //errors if they are not
   res.status(400).send('Invalid credentials');
-  res.redirect(`/login`);
+  //res.redirect(`/login`);
 });
 
 
@@ -191,7 +204,6 @@ app.post('/logout', (req, res) => {
 app.get('/register', (req, res) => {
   const templateVars = { user: req.session.user_id };
   res.render("registration", templateVars);
-  
 });
 
 
